@@ -1,0 +1,19 @@
+package ca.appdirect.appchallenge.model.security;
+
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.userdetails.AuthenticationUserDetailsService;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.oauth.common.OAuthException;
+import org.springframework.security.oauth.provider.ConsumerDetails;
+import org.springframework.security.oauth.provider.ConsumerDetailsService;
+import org.springframework.security.openid.OpenIDAuthenticationToken;
+
+public class CustomUserDetailsService implements AuthenticationUserDetailsService<OpenIDAuthenticationToken> {
+
+    @Override
+    public UserDetails loadUserDetails(final OpenIDAuthenticationToken token) throws UsernameNotFoundException {
+        return new User(token.getName(), "", AuthorityUtils.createAuthorityList("ROLE_USER"));
+    }
+}
