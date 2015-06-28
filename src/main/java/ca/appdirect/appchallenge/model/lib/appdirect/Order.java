@@ -8,6 +8,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import ca.appdirect.appchallenge.model.lib.appdirect.enums.EditionCode;
+
 @XmlRootElement(name="order")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Order implements Serializable {

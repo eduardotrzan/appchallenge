@@ -12,6 +12,8 @@ import javax.xml.bind.annotation.XmlType;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Notice implements Serializable {
 
+	private static final long serialVersionUID = -4271519804198878884L;
+
 	@XmlEnum
 	@XmlType(name = "type")
 	public enum Type {
@@ -20,8 +22,6 @@ public class Notice implements Serializable {
 		, CLOSED
 		, UPCOMING_INVOICE
 	}
-
-	private static final long serialVersionUID = -4271519804198878884L;
 
 	private Type type;
 

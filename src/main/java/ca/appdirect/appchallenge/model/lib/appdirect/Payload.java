@@ -15,6 +15,7 @@ public class Payload implements Serializable {
 	private Company company;
 	private Order order;
 	private Account account;
+	private Notice notice;
 
 	public Company getCompany() {
 		return this.company;
@@ -38,5 +39,13 @@ public class Payload implements Serializable {
 
 	public void setAccount(final Account account) {
 		this.account = account;
+	}
+
+	public Notice getNotice() {
+		return this.notice;
+	}
+
+	public void setNotice(final Notice notice) {
+		this.notice = notice;
 	}
 }

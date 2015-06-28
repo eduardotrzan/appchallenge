@@ -2,16 +2,16 @@ package ca.appdirect.appchallenge.model.lib.appdirect;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name="result")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class EventResultFail extends EventResult {
 
-	private static final long serialVersionUID = -2405012370244222540L;
-
-	private String accountIdentifier;
-
+	@XmlEnum
+	@XmlType(name = "code")
 	public enum Code {
 		USER_ALREADY_EXISTS
 		, USER_NOT_FOUND
@@ -25,6 +25,12 @@ public class EventResultFail extends EventResult {
 		, PENDING
 	}
 
+	private static final long serialVersionUID = -2405012370244222540L;
+
+	private String accountIdentifier;
+
+	private Code code;
+
 	public EventResultFail() {
 		super.setSuccess(Boolean.FALSE);
 	}
@@ -35,5 +41,13 @@ public class EventResultFail extends EventResult {
 
 	public void setAccountIdentifier(final String accountIdentifier) {
 		this.accountIdentifier = accountIdentifier;
+	}
+
+	public Code getCode() {
+		return this.code;
+	}
+
+	public void setCode(final Code code) {
+		this.code = code;
 	}
 }

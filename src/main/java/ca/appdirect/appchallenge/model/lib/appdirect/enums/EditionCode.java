@@ -1,4 +1,4 @@
-package ca.appdirect.appchallenge.model.lib.appdirect;
+package ca.appdirect.appchallenge.model.lib.appdirect.enums;
 
 import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlType;
