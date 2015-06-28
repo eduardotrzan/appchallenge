@@ -27,7 +27,7 @@ import ca.appdirect.appchallenge.model.lib.database.TargetMarketPlace;
 import ca.appdirect.appchallenge.model.lib.database.User;
 
 @RestController
-@RequestMapping(value = "/appdirect/event")
+@RequestMapping(value = "/appdirect")
 public class EventService {
 
 	public enum EventType {
