@@ -1,27 +1,35 @@
-package ca.appdirect.appchallenge.model.lib;
+package ca.appdirect.appchallenge.model.lib.database;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
-
 @Entity
 @Table(name = "system_user")
-public class User extends GenericModel<Integer>{
+public class User extends GenericModel<Integer> {
 
 	private static final long serialVersionUID = -2908684931828481914L;
 
+	public enum Profile {
+		ADM
+		, USER
+		, USER_RESTRICTED
+	}
+
 	private String openId;
-
 	private String firstName;
-
 	private String lastName;
-
 	private String email;
+	private OrderingCompany orderingCompany;
+	private Profile profile;
 
 	@Override
 	@Id
@@ -66,5 +74,25 @@ public class User extends GenericModel<Integer>{
 
 	public void setEmail(final String email) {
 		this.email = email;
+	}
+
+	@ManyToOne
+	@JoinColumn(name = "company_id", nullable = false)
+	public OrderingCompany getOrderingCompany() {
+		return this.orderingCompany;
+	}
+
+	public void setOrderingCompany(final OrderingCompany orderingCompany) {
+		this.orderingCompany = orderingCompany;
+	}
+
+	@Enumerated(EnumType.ORDINAL)
+	@Column(name = "profile", nullable = false)
+	public Profile getProfile() {
+		return this.profile;
+	}
+
+	public void setProfile(final Profile profile) {
+		this.profile = profile;
 	}
 }

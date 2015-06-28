@@ -1,4 +1,4 @@
-package ca.appdirect.appchallenge.model.lib;
+package ca.appdirect.appchallenge.model.lib.database;
 
 import java.io.Serializable;
 
