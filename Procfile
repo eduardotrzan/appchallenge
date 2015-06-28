@@ -1,1 +1,1 @@
-web:    java $JAVA_OPTS -jar -Dlocal.server.port=$PORT target/AppChallenge.jar
+web:    java $JAVA_OPTS -jar -Dlocal.server.port=$PORT target/original-AppChallenge.jar
