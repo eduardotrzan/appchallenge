@@ -1,6 +1,5 @@
 package ca.appdirect.appchallenge.services;
 
-
 import org.springframework.security.openid.OpenIDAuthenticationStatus;
 import org.springframework.security.openid.OpenIDAuthenticationToken;
 import org.springframework.stereotype.Controller;

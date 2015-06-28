@@ -13,6 +13,8 @@ import org.springframework.security.config.annotation.web.configurers.LogoutConf
 import org.springframework.security.config.annotation.web.configurers.openid.OpenIDLoginConfigurer;
 import org.springframework.security.config.annotation.web.servlet.configuration.EnableWebMvcSecurity;
 import org.springframework.security.oauth.common.signature.SharedConsumerSecretImpl;
+import org.springframework.security.oauth.consumer.BaseProtectedResourceDetails;
+import org.springframework.security.oauth.consumer.client.OAuthRestTemplate;
 import org.springframework.security.oauth.provider.BaseConsumerDetails;
 import org.springframework.security.oauth.provider.ConsumerDetailsService;
 import org.springframework.security.oauth.provider.InMemoryConsumerDetailsService;
@@ -90,6 +92,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		filter.setTokenServices(this.providerTokenServices());
 
 		return filter;
+	}
+
+	@Bean
+	public OAuthRestTemplate getoAuthRestTemplate() {
+		BaseProtectedResourceDetails resourceDetails = new BaseProtectedResourceDetails();
+		resourceDetails.setConsumerKey(this.consumerKey);
+		resourceDetails.setSharedSecret(new SharedConsumerSecretImpl(this.consumerSecret));
+		return new OAuthRestTemplate(resourceDetails);
 	}
 
 	@Bean
