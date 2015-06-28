@@ -47,7 +47,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 		http
 		.authorizeRequests()
-		.antMatchers("/", "/appchallenge/**").permitAll()
+		.antMatchers("/", "/appdirect/**").permitAll()
 		.anyRequest().authenticated();
 
 
@@ -59,7 +59,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		.openidLogin()
 		.permitAll()
 		.authenticationUserDetailsService(new UserDetailsAuthService())
-		.attributeExchange("https://www.appchallenge.com.*")
+		.attributeExchange("https://www.appdirect.com.*")
 
 		.attribute("email")
 		.type("http://axschema.org/contact/email")
@@ -85,7 +85,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Bean
 	public OAuthProviderProcessingFilter oAuthProviderProcessingFilter() {
 		List<RequestMatcher> requestMatchers = new ArrayList<>();
-		requestMatchers.add(new AntPathRequestMatcher("/appchallenge/**"));
+		requestMatchers.add(new AntPathRequestMatcher("/appdirect/**"));
 		ProtectedResourceProcessingFilter filter = new CustomProtectedResourceProcessingFilter(requestMatchers);
 
 		filter.setConsumerDetailsService(this.consumerDetailsService());
