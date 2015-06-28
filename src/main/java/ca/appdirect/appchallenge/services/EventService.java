@@ -1,5 +1,7 @@
 package ca.appdirect.appchallenge.services;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +32,8 @@ import ca.appdirect.appchallenge.model.lib.database.User;
 @RequestMapping(value = "/appdirect")
 public class EventService {
 
+	private static final Logger LOGGER = LogManager.getLogger(PortalBO.class);
+
 	public enum EventType {
 		SUBSCRIPTION_ORDER
 		, SUBSCRIPTION_CANCEL
@@ -52,6 +56,7 @@ public class EventService {
 			)
 	@ResponseStatus(HttpStatus.OK)
 	public EventResult createSubscription(@RequestParam final String url) {
+		EventService.LOGGER.debug("Creating subscription...");
 		Event event = this.retrieveEvent(url, EventType.SUBSCRIPTION_ORDER);
 
 		Payload payload = event.getPayload();
