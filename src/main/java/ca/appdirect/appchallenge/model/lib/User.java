@@ -10,7 +10,7 @@ import javax.persistence.Table;
 
 
 @Entity
-@Table(name = "sytem_user")
+@Table(name = "system_user")
 public class User extends GenericModel<Integer>{
 
 	private static final long serialVersionUID = -2908684931828481914L;
@@ -25,9 +25,9 @@ public class User extends GenericModel<Integer>{
 
 	@Override
 	@Id
-	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator="sytem_user_id_seq")
-	@SequenceGenerator(name="sytem_user_id_seq", sequenceName="sytem_user_id_seq", allocationSize=1)
-	@Column(name = "sytem_user_id")
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator="system_user_id_seq")
+	@SequenceGenerator(name="system_user_id_seq", sequenceName="system_user_id_seq", allocationSize=1)
+	@Column(name = "system_user_id")
 	public Integer getId() {
 		return super.getId();
 	}
