@@ -9,7 +9,12 @@ import ca.appdirect.appchallenge.model.dao.IOrderingCompanyDAO;
 import ca.appdirect.appchallenge.model.dao.ITargetMarketPlaceDAO;
 import ca.appdirect.appchallenge.model.dao.IUserDAO;
 import ca.appdirect.appchallenge.model.lib.appdirect.EventResult;
+import ca.appdirect.appchallenge.model.lib.appdirect.EventResultFail;
+import ca.appdirect.appchallenge.model.lib.appdirect.EventResultFail.Code;
 import ca.appdirect.appchallenge.model.lib.appdirect.EventResultSuccess;
+import ca.appdirect.appchallenge.model.lib.appdirect.Notice;
+import ca.appdirect.appchallenge.model.lib.appdirect.enums.AccountStatus;
+import ca.appdirect.appchallenge.model.lib.appdirect.enums.EditionCode;
 import ca.appdirect.appchallenge.model.lib.database.OrderingCompany;
 import ca.appdirect.appchallenge.model.lib.database.TargetMarketPlace;
 import ca.appdirect.appchallenge.model.lib.database.User;
@@ -51,6 +56,110 @@ public class PortalBO {
 		eventResultSuccess.setAccountIdentifier(savedOrderingCompany.getId().toString());
 		eventResultSuccess.setMessage("The order was subscribed with success.");
 		return eventResultSuccess;
+	}
+
+	public EventResult changeOrder(final Integer accountId, final EditionCode editionCode) {
+		OrderingCompany orderingCompany = this.orderingCompanyDAO.findOne(accountId);
+
+		this.checkAccountNotFound(accountId, orderingCompany);
+
+		AccountStatus status = null;
+		if (editionCode == EditionCode.FREE) {
+			status = AccountStatus.ACTIVE;
+		} else if ((editionCode == EditionCode.BASIC) || (editionCode == EditionCode.ADVANCED) || (editionCode == EditionCode.PREMIUM)) {
+			status = AccountStatus.FREE_TRIAL;
+		} else {
+			EventResultFail eventResultFail = this.createFailResult(accountId
+					, Code.UNKNOWN_ERROR
+					, "There unknown edition code."
+					);
+			return eventResultFail;
+		}
+
+		EventResult eventResult = this.saveAndCreateEvent(orderingCompany, status, "Changed");
+		return eventResult;
+	}
+
+	public EventResult cancelOrder(final Integer accountId) {
+		OrderingCompany orderingCompany = this.orderingCompanyDAO.findOne(accountId);
+
+		EventResult eventResult = this.checkAccountNotFound(accountId, orderingCompany);
+		if (eventResult != null) {
+			return eventResult;
+		}
+		eventResult = this.saveAndCreateEvent(orderingCompany, AccountStatus.CANCELLED, "Cancelled");
+		return eventResult;
+	}
+
+	public EventResult noticeOrder(final Integer accountId, final Notice.Type noticeType, final AccountStatus status) {
+		OrderingCompany orderingCompany = this.orderingCompanyDAO.findOne(accountId);
+
+		EventResult eventResult = this.checkAccountNotFound(accountId, orderingCompany);
+		if (eventResult != null) {
+			return eventResult;
+		}
+
+		if (noticeType == Notice.Type.CLOSED) {
+			if ((status == AccountStatus.FREE_TRIAL_EXPIRED) || (status == AccountStatus.SUSPENDED)) {
+				this.orderingCompanyDAO.delete(orderingCompany);
+			} else {
+				this.cancelOrder(accountId);
+			}
+		} else if (noticeType == Notice.Type.DEACTIVATED) {
+			eventResult = this.saveAndCreateEvent(orderingCompany, AccountStatus.SUSPENDED, "Suspended");
+			return eventResult;
+		} else if (noticeType == Notice.Type.REACTIVATED) {
+			eventResult = this.saveAndCreateEvent(orderingCompany, AccountStatus.ACTIVE, "Actived");
+			return eventResult;
+		} else if (noticeType == Notice.Type.UPCOMING_INVOICE) {
+			return this.notifyUser();
+		}
+
+		EventResultFail eventResultFail = this.createFailResult(accountId
+				, Code.UNKNOWN_ERROR
+				, "There unknown notice type."
+				);
+		return eventResultFail;
+	}
+
+	private EventResultFail checkAccountNotFound(final Integer accountId, final OrderingCompany orderingCompany) {
+		if (orderingCompany == null) {
+			EventResultFail eventResultFail = this.createFailResult(accountId
+					, Code.ACCOUNT_NOT_FOUND
+					, "There is no registered Company with the given account identifier."
+					);
+			return eventResultFail;
+		}
+		return null;
+	}
+
+	private EventResultFail createFailResult(final Integer accountId, final Code code, final String message) {
+		EventResultFail eventResultFail = new EventResultFail();
+		eventResultFail.setAccountIdentifier(accountId.toString());
+		eventResultFail.setCode(code);
+		eventResultFail.setMessage(message);
+		return eventResultFail;
+	}
+
+	private EventResult saveAndCreateEvent(final OrderingCompany orderingCompany, final AccountStatus status, final String action) {
+		orderingCompany.setStatus(status);
+		OrderingCompany savedOrderingCompany = this.orderingCompanyDAO.save(orderingCompany);
+
+		String successMsg = String.format("%s: Ordering Company with id: #d"
+				, action
+				, savedOrderingCompany.getId()
+				);
+		PortalBO.LOGGER.info(successMsg);
+
+		EventResultSuccess eventResultSuccess = new EventResultSuccess();
+		eventResultSuccess.setAccountIdentifier(savedOrderingCompany.getId().toString());
+		String message = String.format("The order was %s with success.", action.toLowerCase());
+		eventResultSuccess.setMessage(message);
+		return eventResultSuccess;
+	}
+
+	private EventResult notifyUser() {
+		return null; //TODO implement mail notification
 	}
 
 
