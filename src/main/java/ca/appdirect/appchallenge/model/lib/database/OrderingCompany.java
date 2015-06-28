@@ -13,19 +13,12 @@ import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
-import ca.appdirect.appchallenge.model.lib.appdirect.EditionCode;
+import ca.appdirect.appchallenge.model.lib.appdirect.enums.AccountStatus;
+import ca.appdirect.appchallenge.model.lib.appdirect.enums.EditionCode;
 
 @Entity
 @Table(name = "company")
 public class OrderingCompany extends GenericModel<Integer> {
-
-	public enum Status {
-		FREE_TRIAL
-		, FREE_TRIAL_EXPIRED
-		, ACTIVE
-		, SUSPENDED
-		, CANCELLED
-	}
 
 	private static final long serialVersionUID = -4602836989188440250L;
 
@@ -36,7 +29,7 @@ public class OrderingCompany extends GenericModel<Integer> {
 	private String website;
 	private Set<User> users;
 	private Set<TargetMarketPlace> marketPlaces;
-	private Status status;
+	private AccountStatus status;
 	private EditionCode editionCode;
 
 	@Override
@@ -113,11 +106,11 @@ public class OrderingCompany extends GenericModel<Integer> {
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "status", nullable = false, length = 255)
-	public Status getStatus() {
+	public AccountStatus getStatus() {
 		return this.status;
 	}
 
-	public void setStatus(final Status status) {
+	public void setStatus(final AccountStatus status) {
 		this.status = status;
 	}
 
