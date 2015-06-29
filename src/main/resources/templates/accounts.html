@@ -1,0 +1,40 @@
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tiles="http://www.thymeleaf.org">
+  <head>
+    <title>All Accounts</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  </head>
+
+  <body>
+    <div>
+      <h1>All Registered Companies</h1>
+    
+      <table th:unless="${#lists.isEmpty(companies)}">
+        <thead>
+          <tr>
+            <th>Id</th>
+            <th>Uuid</th>
+            <th>Email</th>
+            <th>Name</th>
+            <th>Phone Number</th>
+            <th>Website</th>
+            <th>Status</th>
+            <th>Edition Code</th>
+          </tr>
+        </thead>
+      
+        <tbody>
+          <tr th:each="company : ${companies}">
+            <td th:text="${company.id}"></td>
+            <td th:text="${company.uuid}"></td>
+            <td th:text="${company.email}"></td>
+            <td th:text="${company.name}"></td>
+            <td th:text="${company.phoneNumber}"></td>
+            <td th:text="${company.website}"></td>
+            <td th:text="${company.status}"></td>
+            <td th:text="${company.editionCode}"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </body>
+</html>
