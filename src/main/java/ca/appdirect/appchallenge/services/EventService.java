@@ -5,6 +5,8 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth.common.signature.SharedConsumerSecretImpl;
+import org.springframework.security.oauth.consumer.BaseProtectedResourceDetails;
 import org.springframework.security.oauth.consumer.client.OAuthRestTemplate;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -37,8 +39,16 @@ public class EventService {
 
 	private static final Logger LOGGER = LogManager.getLogger(EventService.class);
 
-	@Autowired
 	private OAuthRestTemplate oAuthRestTemplate;
+
+	public EventService() {
+		String consumerKey = System.getenv("consumer-key");
+		String consumerSecret = System.getenv("consumer-secret");
+		BaseProtectedResourceDetails resourceDetails = new BaseProtectedResourceDetails();
+		resourceDetails.setConsumerKey(consumerKey);
+		resourceDetails.setSharedSecret(new SharedConsumerSecretImpl(consumerSecret));
+		this.oAuthRestTemplate = new OAuthRestTemplate(resourceDetails);
+	}
 
 	@Autowired
 	private PortalBO portalBO;
