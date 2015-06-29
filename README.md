@@ -32,11 +32,14 @@ Name: DATABASE_URL
 Value: postgres://username:password@127.0.0.1:5432/appchallenge
 
 For consumer OAuth resource
+
 Name: consumer-key
-Value: <<your key>>
+
+Value: << your key >>
 
 Name: consumer-secret
-Value: <<your secret>>
+
+Value: << your secret >>
 
 ### Create database tables
 Run the Sql create-database.sql script in misc\database.
