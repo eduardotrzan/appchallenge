@@ -126,6 +126,7 @@ public class EventService {
 	}
 
 	private Event retrieveEvent(final String url, final EventType eventType) {
+		EventService.LOGGER.debug("oAuthRestTemplate: " + this.oAuthRestTemplate);
 		ResponseEntity<Event> responseEntity = this.oAuthRestTemplate.getForEntity(url, Event.class);
 		Event response 					     = responseEntity.getBody();
 		return response;

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -31,6 +32,7 @@ import ca.appdirect.appchallenge.model.security.UserDetailsAuthService;
 
 @Configuration
 @EnableWebMvcSecurity
+@ComponentScan(basePackages = "ca.appdirect.appchallenge")
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	private String consumerKey;
