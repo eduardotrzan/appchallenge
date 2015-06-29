@@ -6,22 +6,24 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import ca.appdirect.appchallenge.model.lib.appdirect.enums.EventType;
+
 @XmlRootElement(name="event")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Event implements Serializable {
 
 	private static final long serialVersionUID = 7490587575137652713L;
 
-	private String type;
+	private EventType type;
 	private Marketplace marketplace;
 	private Creator creator;
 	private Payload payload;
 
-	public String getType() {
+	public EventType getType() {
 		return this.type;
 	}
 
-	public void setType(final String type) {
+	public void setType(final EventType type) {
 		this.type = type;
 	}
 

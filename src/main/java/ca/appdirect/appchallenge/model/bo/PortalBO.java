@@ -136,7 +136,6 @@ public class PortalBO {
 
 	private EventResultFail createFailResult(final Integer accountId, final Code code, final String message) {
 		EventResultFail eventResultFail = new EventResultFail();
-		eventResultFail.setAccountIdentifier(accountId.toString());
 		eventResultFail.setCode(code);
 		eventResultFail.setMessage(message);
 		return eventResultFail;

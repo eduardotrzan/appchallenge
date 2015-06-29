@@ -18,12 +18,15 @@ import ca.appdirect.appchallenge.model.lib.appdirect.Company;
 import ca.appdirect.appchallenge.model.lib.appdirect.Creator;
 import ca.appdirect.appchallenge.model.lib.appdirect.Event;
 import ca.appdirect.appchallenge.model.lib.appdirect.EventResult;
+import ca.appdirect.appchallenge.model.lib.appdirect.EventResultFail;
+import ca.appdirect.appchallenge.model.lib.appdirect.EventResultFail.Code;
 import ca.appdirect.appchallenge.model.lib.appdirect.Marketplace;
 import ca.appdirect.appchallenge.model.lib.appdirect.Notice;
 import ca.appdirect.appchallenge.model.lib.appdirect.Order;
 import ca.appdirect.appchallenge.model.lib.appdirect.Payload;
 import ca.appdirect.appchallenge.model.lib.appdirect.enums.AccountStatus;
 import ca.appdirect.appchallenge.model.lib.appdirect.enums.EditionCode;
+import ca.appdirect.appchallenge.model.lib.appdirect.enums.EventType;
 import ca.appdirect.appchallenge.model.lib.database.OrderingCompany;
 import ca.appdirect.appchallenge.model.lib.database.TargetMarketPlace;
 import ca.appdirect.appchallenge.model.lib.database.User;
@@ -33,15 +36,6 @@ import ca.appdirect.appchallenge.model.lib.database.User;
 public class EventService {
 
 	private static final Logger LOGGER = LogManager.getLogger(EventService.class);
-
-	public enum EventType {
-		SUBSCRIPTION_ORDER
-		, SUBSCRIPTION_CANCEL
-		, SUBSCRIPTION_CHANGE
-		, SUBSCRIPTION_NOTICE
-		, USER_ASSIGNMENT
-		, USER_UNASSIGNMENT
-	}
 
 	@Autowired
 	private OAuthRestTemplate oAuthRestTemplate;
@@ -57,7 +51,16 @@ public class EventService {
 	@ResponseStatus(HttpStatus.OK)
 	public EventResult createSubscription(@RequestParam final String url) {
 		EventService.LOGGER.debug("Creating subscription...");
-		Event event = this.retrieveEvent(url, EventType.SUBSCRIPTION_ORDER);
+
+		Event event;
+		try {
+			event = this.retrieveEvent(url, EventType.SUBSCRIPTION_ORDER);
+		} catch (IllegalArgumentException e) {
+			EventResultFail eventResultFail = new EventResultFail();
+			eventResultFail.setCode(Code.INVALID_RESPONSE);
+			eventResultFail.setMessage(e.getMessage());
+			return eventResultFail;
+		}
 
 		Payload payload = event.getPayload();
 
@@ -82,7 +85,16 @@ public class EventService {
 			)
 	@ResponseStatus(HttpStatus.OK)
 	public EventResult changeSubscription(@RequestParam final String url) {
-		Event event       = this.retrieveEvent(url, EventType.SUBSCRIPTION_CHANGE);
+		Event event;
+
+		try {
+			event = this.retrieveEvent(url, EventType.SUBSCRIPTION_CHANGE);
+		} catch (IllegalArgumentException e) {
+			EventResultFail eventResultFail = new EventResultFail();
+			eventResultFail.setCode(Code.INVALID_RESPONSE);
+			eventResultFail.setMessage(e.getMessage());
+			return eventResultFail;
+		}
 
 		Integer accountId = this.getAccountIdentifier(event);
 
@@ -100,7 +112,17 @@ public class EventService {
 			)
 	@ResponseStatus(HttpStatus.OK)
 	public EventResult cancelSubscription(@RequestParam final String url) {
-		Event event       = this.retrieveEvent(url, EventType.SUBSCRIPTION_CANCEL);
+		Event event;
+
+		try {
+			event = this.retrieveEvent(url, EventType.SUBSCRIPTION_CANCEL);
+		} catch (IllegalArgumentException e) {
+			EventResultFail eventResultFail = new EventResultFail();
+			eventResultFail.setCode(Code.INVALID_RESPONSE);
+			eventResultFail.setMessage(e.getMessage());
+			return eventResultFail;
+		}
+
 		Integer accountId = this.getAccountIdentifier(event);
 		return this.portalBO.cancelOrder(accountId);
 	}
@@ -112,7 +134,16 @@ public class EventService {
 			)
 	@ResponseStatus(HttpStatus.OK)
 	public EventResult noticeSubscription(@RequestParam final String url) {
-		Event event = this.retrieveEvent(url, EventType.SUBSCRIPTION_NOTICE);
+		Event event;
+
+		try {
+			event = this.retrieveEvent(url, EventType.SUBSCRIPTION_NOTICE);
+		} catch (IllegalArgumentException e) {
+			EventResultFail eventResultFail = new EventResultFail();
+			eventResultFail.setCode(Code.INVALID_RESPONSE);
+			eventResultFail.setMessage(e.getMessage());
+			return eventResultFail;
+		}
 
 		Integer accountId = this.getAccountIdentifier(event);
 
@@ -127,8 +158,15 @@ public class EventService {
 
 	private Event retrieveEvent(final String url, final EventType eventType) {
 		EventService.LOGGER.debug("oAuthRestTemplate: " + this.oAuthRestTemplate);
+		EventService.LOGGER.debug("url: " + url);
 		ResponseEntity<Event> responseEntity = this.oAuthRestTemplate.getForEntity(url, Event.class);
 		Event response 					     = responseEntity.getBody();
+
+		EventType urlType = response.getType();
+		if (urlType != eventType) {
+			throw new IllegalArgumentException("Event is not the same!");
+		}
+
 		return response;
 	}
 

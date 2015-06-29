@@ -27,20 +27,10 @@ public class EventResultFail extends EventResult {
 
 	private static final long serialVersionUID = -2405012370244222540L;
 
-	private String accountIdentifier;
-
 	private Code code;
 
 	public EventResultFail() {
 		super.setSuccess(Boolean.FALSE);
-	}
-
-	public String getAccountIdentifier() {
-		return this.accountIdentifier;
-	}
-
-	public void setAccountIdentifier(final String accountIdentifier) {
-		this.accountIdentifier = accountIdentifier;
 	}
 
 	public Code getCode() {
