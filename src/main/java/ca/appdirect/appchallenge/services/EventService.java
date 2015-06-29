@@ -32,7 +32,7 @@ import ca.appdirect.appchallenge.model.lib.database.User;
 @RequestMapping(value = "/appdirect")
 public class EventService {
 
-	private static final Logger LOGGER = LogManager.getLogger(PortalBO.class);
+	private static final Logger LOGGER = LogManager.getLogger(EventService.class);
 
 	public enum EventType {
 		SUBSCRIPTION_ORDER

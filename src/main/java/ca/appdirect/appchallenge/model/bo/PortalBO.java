@@ -35,6 +35,7 @@ public class PortalBO {
 	private ITargetMarketPlaceDAO targetMarketPlaceDAO;
 
 	public EventResult registerOrder(final OrderingCompany orderingCompany, final TargetMarketPlace targetMarketPlace, final User user) {
+		orderingCompany.setStatus(AccountStatus.FREE_TRIAL);
 		OrderingCompany savedOrderingCompany = this.orderingCompanyDAO.save(orderingCompany);
 
 		targetMarketPlace.setOrderingCompany(savedOrderingCompany);

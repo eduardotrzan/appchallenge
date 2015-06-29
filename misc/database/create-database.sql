@@ -17,8 +17,7 @@ CREATE TABLE company(
   website varchar(255) NOT NULL,
   status varchar(255) NOT NULL,
   edition_code integer NOT NULL,
-  CONSTRAINT company_id PRIMARY KEY (company_id),
-  CONSTRAINT unq_uuid UNIQUE (uuid)
+  CONSTRAINT company_id PRIMARY KEY (company_id)
 );
 ALTER SEQUENCE company_id_seq OWNED BY company.company_id;
 
