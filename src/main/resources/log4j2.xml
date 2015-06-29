@@ -2,7 +2,7 @@
 <Configuration status="WARN" 
                strict="true" 
                name="XMLConfig"
-               packages="ca.adsdata"
+               packages="ca.appdirect.appchallenge"
 >
   <Appenders>
     <Appender type="Console" name="STDOUT">
