@@ -13,11 +13,11 @@ Deployed at Heroku.
 
 Heroku test in progress:
 - Subscription order
-
-Future tests:
 - Subscription change
 - Subscription cancel
 - Subscription notice
+
+* Note: working locally or standalone web.
 
 
 ## Heroku
