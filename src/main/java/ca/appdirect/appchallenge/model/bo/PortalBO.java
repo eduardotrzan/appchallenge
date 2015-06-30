@@ -46,8 +46,7 @@ public class PortalBO {
 
 		user.setProfile(Profile.ADM);
 		user.setOrderingCompany(savedOrderingCompany);
-		User savedUser 	= this.userDAO.save(user);
-
+		User savedUser = this.userDAO.save(user);
 
 		String successMsg = String.format("Saved: User with id #%d, Target Market Place with id #%d and Ordering Company wit id: #%d"
 				, savedUser.getId()
@@ -57,15 +56,15 @@ public class PortalBO {
 		PortalBO.LOGGER.info(successMsg);
 
 		EventResultSuccess eventResultSuccess = new EventResultSuccess();
-		eventResultSuccess.setAccountIdentifier(savedOrderingCompany.getId().toString());
+		eventResultSuccess.setAccountIdentifier(savedOrderingCompany.getAccountIdentifier());
 		eventResultSuccess.setMessage("The order was subscribed with success.");
 		return eventResultSuccess;
 	}
 
-	public EventResult changeOrder(final Integer accountId, final EditionCode editionCode) {
-		OrderingCompany orderingCompany = this.orderingCompanyDAO.findOne(accountId);
+	public EventResult changeOrder(final String accountIdentifier, final EditionCode editionCode) {
+		OrderingCompany orderingCompany = this.orderingCompanyDAO.findByAccountIdentifier(accountIdentifier);
 
-		this.checkAccountNotFound(accountId, orderingCompany);
+		this.checkAccountNotFound(orderingCompany);
 
 		AccountStatus status = null;
 		if (editionCode == EditionCode.FREE) {
@@ -73,8 +72,7 @@ public class PortalBO {
 		} else if ((editionCode == EditionCode.BASIC) || (editionCode == EditionCode.ADVANCED) || (editionCode == EditionCode.PREMIUM)) {
 			status = AccountStatus.FREE_TRIAL;
 		} else {
-			EventResultFail eventResultFail = this.createFailResult(accountId
-					, Code.UNKNOWN_ERROR
+			EventResultFail eventResultFail = this.createFailResult(Code.UNKNOWN_ERROR
 					, "There unknown edition code."
 					);
 			return eventResultFail;
@@ -84,10 +82,10 @@ public class PortalBO {
 		return eventResult;
 	}
 
-	public EventResult cancelOrder(final Integer accountId) {
-		OrderingCompany orderingCompany = this.orderingCompanyDAO.findOne(accountId);
+	public EventResult cancelOrder(final String accountIdentifier) {
+		OrderingCompany orderingCompany = this.orderingCompanyDAO.findByAccountIdentifier(accountIdentifier);
 
-		EventResult eventResult = this.checkAccountNotFound(accountId, orderingCompany);
+		EventResult eventResult = this.checkAccountNotFound(orderingCompany);
 		if (eventResult != null) {
 			return eventResult;
 		}
@@ -95,10 +93,10 @@ public class PortalBO {
 		return eventResult;
 	}
 
-	public EventResult noticeOrder(final Integer accountId, final Notice.Type noticeType, final AccountStatus status) {
-		OrderingCompany orderingCompany = this.orderingCompanyDAO.findOne(accountId);
+	public EventResult noticeOrder(final String accountIdentifier, final Notice.Type noticeType, final AccountStatus status) {
+		OrderingCompany orderingCompany = this.orderingCompanyDAO.findByAccountIdentifier(accountIdentifier);
 
-		EventResult eventResult = this.checkAccountNotFound(accountId, orderingCompany);
+		EventResult eventResult = this.checkAccountNotFound(orderingCompany);
 		if (eventResult != null) {
 			return eventResult;
 		}
@@ -107,7 +105,7 @@ public class PortalBO {
 			if ((status == AccountStatus.FREE_TRIAL_EXPIRED) || (status == AccountStatus.SUSPENDED)) {
 				this.orderingCompanyDAO.delete(orderingCompany);
 			} else {
-				this.cancelOrder(accountId);
+				this.cancelOrder(accountIdentifier);
 			}
 		} else if (noticeType == Notice.Type.DEACTIVATED) {
 			eventResult = this.saveAndCreateEvent(orderingCompany, AccountStatus.SUSPENDED, "Suspended");
@@ -119,17 +117,15 @@ public class PortalBO {
 			return this.notifyUser();
 		}
 
-		EventResultFail eventResultFail = this.createFailResult(accountId
-				, Code.UNKNOWN_ERROR
+		EventResultFail eventResultFail = this.createFailResult(Code.UNKNOWN_ERROR
 				, "There unknown notice type."
 				);
 		return eventResultFail;
 	}
 
-	private EventResultFail checkAccountNotFound(final Integer accountId, final OrderingCompany orderingCompany) {
+	private EventResultFail checkAccountNotFound(final OrderingCompany orderingCompany) {
 		if (orderingCompany == null) {
-			EventResultFail eventResultFail = this.createFailResult(accountId
-					, Code.ACCOUNT_NOT_FOUND
+			EventResultFail eventResultFail = this.createFailResult(Code.ACCOUNT_NOT_FOUND
 					, "There is no registered Company with the given account identifier."
 					);
 			return eventResultFail;
@@ -137,7 +133,7 @@ public class PortalBO {
 		return null;
 	}
 
-	private EventResultFail createFailResult(final Integer accountId, final Code code, final String message) {
+	private EventResultFail createFailResult(final Code code, final String message) {
 		EventResultFail eventResultFail = new EventResultFail();
 		eventResultFail.setCode(code);
 		eventResultFail.setMessage(message);
@@ -155,7 +151,7 @@ public class PortalBO {
 		PortalBO.LOGGER.info(successMsg);
 
 		EventResultSuccess eventResultSuccess = new EventResultSuccess();
-		eventResultSuccess.setAccountIdentifier(savedOrderingCompany.getId().toString());
+		eventResultSuccess.setAccountIdentifier(savedOrderingCompany.getAccountIdentifier());
 		String message = String.format("The order was %s with success.", action.toLowerCase());
 		eventResultSuccess.setMessage(message);
 		return eventResultSuccess;
