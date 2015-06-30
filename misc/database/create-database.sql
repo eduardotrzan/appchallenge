@@ -17,6 +17,7 @@ CREATE TABLE company(
   website varchar(255) NOT NULL,
   status varchar(255) NOT NULL,
   edition_code integer NOT NULL,
+  account_identifier varchar(255) NOT NULL,
   CONSTRAINT company_id PRIMARY KEY (company_id),
   CONSTRAINT unq_uuid UNIQUE (uuid)
 );

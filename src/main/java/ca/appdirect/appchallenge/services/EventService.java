@@ -4,10 +4,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.oauth.common.signature.SharedConsumerSecretImpl;
-import org.springframework.security.oauth.consumer.BaseProtectedResourceDetails;
-import org.springframework.security.oauth.consumer.client.OAuthRestTemplate;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -39,17 +35,6 @@ public class EventService {
 
 	private static final Logger LOGGER = LogManager.getLogger(EventService.class);
 
-	private OAuthRestTemplate oAuthRestTemplate;
-
-	public EventService() {
-		String consumerKey = System.getenv("consumer-key");
-		String consumerSecret = System.getenv("consumer-secret");
-		BaseProtectedResourceDetails resourceDetails = new BaseProtectedResourceDetails();
-		resourceDetails.setConsumerKey(consumerKey);
-		resourceDetails.setSharedSecret(new SharedConsumerSecretImpl(consumerSecret));
-		this.oAuthRestTemplate = new OAuthRestTemplate(resourceDetails);
-	}
-
 	@Autowired
 	private PortalBO portalBO;
 
@@ -60,7 +45,7 @@ public class EventService {
 			)
 	@ResponseStatus(HttpStatus.OK)
 	public EventResult createSubscription(@RequestParam final String url) {
-		EventService.LOGGER.debug("Creating subscription...");
+		EventService.LOGGER.info("Creating subscription...");
 
 		Event event;
 		try {
@@ -85,6 +70,14 @@ public class EventService {
 		Creator creator = event.getCreator();
 		User user 		= creator.parseAsUser();
 
+		/*
+		 * Used for saving AppDirect dummy test xmls.
+		 */
+		final String dummyAccountOpenId = "https://www.appdirect.com/openid/id/ec5d8eda-5cec-444d-9e30-125b6e4b67e2";
+		if (dummyAccountOpenId.equals(user.getOpenId())) {
+			orderingCompany.setAccountIdentifier("dummy-account");
+		}
+
 		return this.portalBO.registerOrder(orderingCompany, targetMarketPlace, user);
 	}
 
@@ -95,8 +88,9 @@ public class EventService {
 			)
 	@ResponseStatus(HttpStatus.OK)
 	public EventResult changeSubscription(@RequestParam final String url) {
-		Event event;
+		EventService.LOGGER.info("Changing subscription...");
 
+		Event event;
 		try {
 			event = this.retrieveEvent(url, EventType.SUBSCRIPTION_CHANGE);
 		} catch (IllegalArgumentException e) {
@@ -106,13 +100,13 @@ public class EventService {
 			return eventResultFail;
 		}
 
-		Integer accountId = this.getAccountIdentifier(event);
+		String accountIdentifier = this.getAccountIdentifier(event);
 
 		Payload payload         = event.getPayload();
 		Order order 		    = payload.getOrder();
 		EditionCode editionCode = order.getEditionCode();
 
-		return this.portalBO.changeOrder(accountId, editionCode);
+		return this.portalBO.changeOrder(accountIdentifier, editionCode);
 	}
 
 	@RequestMapping(
@@ -122,8 +116,9 @@ public class EventService {
 			)
 	@ResponseStatus(HttpStatus.OK)
 	public EventResult cancelSubscription(@RequestParam final String url) {
-		Event event;
+		EventService.LOGGER.info("Cancelling subscription...");
 
+		Event event;
 		try {
 			event = this.retrieveEvent(url, EventType.SUBSCRIPTION_CANCEL);
 		} catch (IllegalArgumentException e) {
@@ -133,8 +128,8 @@ public class EventService {
 			return eventResultFail;
 		}
 
-		Integer accountId = this.getAccountIdentifier(event);
-		return this.portalBO.cancelOrder(accountId);
+		String accountIdentifier = this.getAccountIdentifier(event);
+		return this.portalBO.cancelOrder(accountIdentifier);
 	}
 
 	@RequestMapping(
@@ -144,8 +139,9 @@ public class EventService {
 			)
 	@ResponseStatus(HttpStatus.OK)
 	public EventResult noticeSubscription(@RequestParam final String url) {
-		Event event;
+		EventService.LOGGER.info("Noticing subscription...");
 
+		Event event;
 		try {
 			event = this.retrieveEvent(url, EventType.SUBSCRIPTION_NOTICE);
 		} catch (IllegalArgumentException e) {
@@ -155,7 +151,7 @@ public class EventService {
 			return eventResultFail;
 		}
 
-		Integer accountId = this.getAccountIdentifier(event);
+		String accountIdentifier = this.getAccountIdentifier(event);
 
 		Payload payload = event.getPayload();
 		Notice notice	= payload.getNotice();
@@ -163,29 +159,29 @@ public class EventService {
 		Account account 	 = payload.getAccount();
 		AccountStatus status = account.getStatus();
 
-		return this.portalBO.noticeOrder(accountId, notice.getType(), status);
+		return this.portalBO.noticeOrder(accountIdentifier, notice.getType(), status);
 	}
 
 	private Event retrieveEvent(final String url, final EventType eventType) {
-		EventService.LOGGER.debug("oAuthRestTemplate: " + this.oAuthRestTemplate);
-		EventService.LOGGER.debug("url: " + url);
-		ResponseEntity<Event> responseEntity = this.oAuthRestTemplate.getForEntity(url, Event.class);
-		Event response 					     = responseEntity.getBody();
+		String eventMsg = String.format("Retrieving event type %s in url: %s", eventType, url);
+		EventService.LOGGER.info(eventMsg);
 
-		EventType urlType = EventType.getEventType(response.getType());
-		if ((urlType == null) || (urlType != eventType)) {
+		Event response = this.portalBO.getForEntity(url);
+
+		String responseType	= response.getType();
+		EventType urlType   = EventType.getEventType(responseType);
+		if ((urlType == null) || (!urlType.equals(eventType))) {
 			throw new IllegalArgumentException("Event is not the same!");
 		}
 
 		return response;
 	}
 
-	private Integer getAccountIdentifier(final Event event) {
+	private String getAccountIdentifier(final Event event) {
 		Payload payload          = event.getPayload();
 		Account account          = payload.getAccount();
 		String accountIdentifier = account.getAccountIdentifier();
-		Integer accountId		 = Integer.parseInt(accountIdentifier);
-		return accountId;
+		return accountIdentifier;
 	}
 
 
@@ -193,14 +189,6 @@ public class EventService {
 	 * ##          Getters and setters         ##
 	 * ##########################################
 	 */
-
-	public OAuthRestTemplate getoAuthRestTemplate() {
-		return this.oAuthRestTemplate;
-	}
-
-	public void setoAuthRestTemplate(final OAuthRestTemplate oAuthRestTemplate) {
-		this.oAuthRestTemplate = oAuthRestTemplate;
-	}
 
 	public PortalBO getPortalBO() {
 		return this.portalBO;
