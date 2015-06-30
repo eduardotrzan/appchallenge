@@ -212,4 +212,12 @@ public class PortalBO {
 	public void setTargetMarketPlaceDAO(final ITargetMarketPlaceDAO targetMarketPlaceDAO) {
 		this.targetMarketPlaceDAO = targetMarketPlaceDAO;
 	}
+
+	public OAuthRestTemplate getoAuthRestTemplate() {
+		return this.oAuthRestTemplate;
+	}
+
+	public void setoAuthRestTemplate(final OAuthRestTemplate oAuthRestTemplate) {
+		this.oAuthRestTemplate = oAuthRestTemplate;
+	}
 }
