@@ -31,6 +31,7 @@ public class OrderingCompany extends GenericModel<Integer> {
 	private Set<TargetMarketPlace> marketPlaces;
 	private AccountStatus status;
 	private EditionCode editionCode;
+	private String accountIdentifier;
 
 	@Override
 	@Id
@@ -122,5 +123,13 @@ public class OrderingCompany extends GenericModel<Integer> {
 
 	public void setEditionCode(final EditionCode editionCode) {
 		this.editionCode = editionCode;
+	}
+
+	public String getAccountIdentifier() {
+		return this.accountIdentifier;
+	}
+
+	public void setAccountIdentifier(final String accountIdentifier) {
+		this.accountIdentifier = accountIdentifier;
 	}
 }

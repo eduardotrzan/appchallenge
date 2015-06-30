@@ -6,4 +6,5 @@ import ca.appdirect.appchallenge.model.lib.database.OrderingCompany;
 
 public interface IOrderingCompanyDAO extends CrudRepository<OrderingCompany, Integer> {
 
+	public OrderingCompany findByAccountIdentifier(String accountIdentifier);
 }
