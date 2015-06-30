@@ -6,11 +6,14 @@ import org.apache.commons.collections.IteratorUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth.consumer.client.OAuthRestTemplate;
 import org.springframework.stereotype.Service;
 
 import ca.appdirect.appchallenge.model.dao.IOrderingCompanyDAO;
 import ca.appdirect.appchallenge.model.dao.ITargetMarketPlaceDAO;
 import ca.appdirect.appchallenge.model.dao.IUserDAO;
+import ca.appdirect.appchallenge.model.lib.appdirect.Event;
 import ca.appdirect.appchallenge.model.lib.appdirect.EventResult;
 import ca.appdirect.appchallenge.model.lib.appdirect.EventResultFail;
 import ca.appdirect.appchallenge.model.lib.appdirect.EventResultFail.Code;
@@ -27,6 +30,9 @@ import ca.appdirect.appchallenge.model.lib.database.User.Profile;
 public class PortalBO {
 
 	private static final Logger LOGGER = LogManager.getLogger(PortalBO.class);
+
+	@Autowired
+	private OAuthRestTemplate oAuthRestTemplate;
 
 	@Autowired
 	private IUserDAO userDAO;
@@ -171,6 +177,11 @@ public class PortalBO {
 	public List<OrderingCompany> findAllOrderingCompanies() {
 		Iterable<OrderingCompany> orderingCompaniesIt = this.orderingCompanyDAO.findAll();
 		return IteratorUtils.toList(orderingCompaniesIt.iterator());
+	}
+
+	public Event getForEntity(final String url) {
+		ResponseEntity<Event> responseEntity = this.oAuthRestTemplate.getForEntity(url, Event.class);
+		return responseEntity.getBody();
 	}
 
 	/* ##########################################
