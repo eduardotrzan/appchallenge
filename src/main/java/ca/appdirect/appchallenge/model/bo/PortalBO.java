@@ -49,7 +49,7 @@ public class PortalBO {
 		User savedUser 	= this.userDAO.save(user);
 
 
-		String successMsg = String.format("Saved: User with id #%d, Target Market Place with id #%d and Ordering Company wit id: #d"
+		String successMsg = String.format("Saved: User with id #%d, Target Market Place with id #%d and Ordering Company wit id: #%d"
 				, savedUser.getId()
 				, savedTargetMarketPlace.getId()
 				, savedOrderingCompany.getId()
@@ -148,7 +148,7 @@ public class PortalBO {
 		orderingCompany.setStatus(status);
 		OrderingCompany savedOrderingCompany = this.orderingCompanyDAO.save(orderingCompany);
 
-		String successMsg = String.format("%s: Ordering Company with id: #d"
+		String successMsg = String.format("%s: Ordering Company with id: #%d"
 				, action
 				, savedOrderingCompany.getId()
 				);

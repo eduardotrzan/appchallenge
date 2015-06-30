@@ -172,8 +172,9 @@ public class EventService {
 		ResponseEntity<Event> responseEntity = this.oAuthRestTemplate.getForEntity(url, Event.class);
 		Event response 					     = responseEntity.getBody();
 
-		EventType urlType = EventType.getEventType(response.getType());
-		if ((urlType == null) || (urlType != eventType)) {
+		String responseType	= response.getType();
+		EventType urlType   = EventType.getEventType(responseType);
+		if ((urlType == null) || (!urlType.equals(eventType))) {
 			throw new IllegalArgumentException("Event is not the same!");
 		}
 
