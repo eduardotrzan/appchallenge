@@ -60,7 +60,7 @@ public class EventService {
 			)
 	@ResponseStatus(HttpStatus.OK)
 	public EventResult createSubscription(@RequestParam final String url) {
-		EventService.LOGGER.debug("Creating subscription...");
+		EventService.LOGGER.info("Creating subscription...");
 
 		Event event;
 		try {
@@ -85,6 +85,14 @@ public class EventService {
 		Creator creator = event.getCreator();
 		User user 		= creator.parseAsUser();
 
+		/*
+		 * Used for saving AppDirect dummy test xmls.
+		 */
+		final String dummyAccountOpenId = "https://www.appdirect.com/openid/id/ec5d8eda-5cec-444d-9e30-125b6e4b67e2";
+		if (dummyAccountOpenId.equals(user.getOpenId())) {
+			orderingCompany.setAccountIdentifier("dummy-account");
+		}
+
 		return this.portalBO.registerOrder(orderingCompany, targetMarketPlace, user);
 	}
 
@@ -95,8 +103,9 @@ public class EventService {
 			)
 	@ResponseStatus(HttpStatus.OK)
 	public EventResult changeSubscription(@RequestParam final String url) {
-		Event event;
+		EventService.LOGGER.info("Changing subscription...");
 
+		Event event;
 		try {
 			event = this.retrieveEvent(url, EventType.SUBSCRIPTION_CHANGE);
 		} catch (IllegalArgumentException e) {
@@ -106,13 +115,13 @@ public class EventService {
 			return eventResultFail;
 		}
 
-		Integer accountId = this.getAccountIdentifier(event);
+		String accountIdentifier = this.getAccountIdentifier(event);
 
 		Payload payload         = event.getPayload();
 		Order order 		    = payload.getOrder();
 		EditionCode editionCode = order.getEditionCode();
 
-		return this.portalBO.changeOrder(accountId, editionCode);
+		return this.portalBO.changeOrder(accountIdentifier, editionCode);
 	}
 
 	@RequestMapping(
@@ -122,8 +131,9 @@ public class EventService {
 			)
 	@ResponseStatus(HttpStatus.OK)
 	public EventResult cancelSubscription(@RequestParam final String url) {
-		Event event;
+		EventService.LOGGER.info("Cancelling subscription...");
 
+		Event event;
 		try {
 			event = this.retrieveEvent(url, EventType.SUBSCRIPTION_CANCEL);
 		} catch (IllegalArgumentException e) {
@@ -133,8 +143,8 @@ public class EventService {
 			return eventResultFail;
 		}
 
-		Integer accountId = this.getAccountIdentifier(event);
-		return this.portalBO.cancelOrder(accountId);
+		String accountIdentifier = this.getAccountIdentifier(event);
+		return this.portalBO.cancelOrder(accountIdentifier);
 	}
 
 	@RequestMapping(
@@ -144,8 +154,9 @@ public class EventService {
 			)
 	@ResponseStatus(HttpStatus.OK)
 	public EventResult noticeSubscription(@RequestParam final String url) {
-		Event event;
+		EventService.LOGGER.info("Noticing subscription...");
 
+		Event event;
 		try {
 			event = this.retrieveEvent(url, EventType.SUBSCRIPTION_NOTICE);
 		} catch (IllegalArgumentException e) {
@@ -155,7 +166,7 @@ public class EventService {
 			return eventResultFail;
 		}
 
-		Integer accountId = this.getAccountIdentifier(event);
+		String accountIdentifier = this.getAccountIdentifier(event);
 
 		Payload payload = event.getPayload();
 		Notice notice	= payload.getNotice();
@@ -163,12 +174,13 @@ public class EventService {
 		Account account 	 = payload.getAccount();
 		AccountStatus status = account.getStatus();
 
-		return this.portalBO.noticeOrder(accountId, notice.getType(), status);
+		return this.portalBO.noticeOrder(accountIdentifier, notice.getType(), status);
 	}
 
 	private Event retrieveEvent(final String url, final EventType eventType) {
-		EventService.LOGGER.debug("oAuthRestTemplate: " + this.oAuthRestTemplate);
-		EventService.LOGGER.debug("url: " + url);
+		String eventMsg = String.format("Retrieving event type %s in url: %s", eventType, url);
+		EventService.LOGGER.info(eventMsg);
+
 		ResponseEntity<Event> responseEntity = this.oAuthRestTemplate.getForEntity(url, Event.class);
 		Event response 					     = responseEntity.getBody();
 
@@ -181,12 +193,11 @@ public class EventService {
 		return response;
 	}
 
-	private Integer getAccountIdentifier(final Event event) {
+	private String getAccountIdentifier(final Event event) {
 		Payload payload          = event.getPayload();
 		Account account          = payload.getAccount();
 		String accountIdentifier = account.getAccountIdentifier();
-		Integer accountId		 = Integer.parseInt(accountIdentifier);
-		return accountId;
+		return accountIdentifier;
 	}
 
 
