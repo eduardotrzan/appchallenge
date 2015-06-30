@@ -104,8 +104,14 @@ public class PortalBO {
 		if (noticeType == Notice.Type.CLOSED) {
 			if ((status == AccountStatus.FREE_TRIAL_EXPIRED) || (status == AccountStatus.SUSPENDED)) {
 				this.orderingCompanyDAO.delete(orderingCompany);
+
+				EventResultSuccess eventResultSuccess = new EventResultSuccess();
+				eventResultSuccess.setAccountIdentifier(orderingCompany.getAccountIdentifier());
+				String message = String.format("The order was deleted with success.");
+				eventResultSuccess.setMessage(message);
+				return eventResultSuccess;
 			} else {
-				this.cancelOrder(accountIdentifier);
+				return this.cancelOrder(accountIdentifier);
 			}
 		} else if (noticeType == Notice.Type.DEACTIVATED) {
 			eventResult = this.saveAndCreateEvent(orderingCompany, AccountStatus.SUSPENDED, "Suspended");
